@@ -1,0 +1,261 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Design tokens
+   Editorial print palette: warm paper, near-black ink, hairlines.
+   Reasons: the site is framed as a warm printed journal; paper,
+   ink, muted captions and thin rules carry the identity without
+   an accent color battle. One warm ember used for the in-text
+   underline of the hero editorial kicker only.
+   ============================================================ */
+@theme {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-deep: var(--line-deep);
+  --color-ember: var(--ember);
+
+  --font-sans: "Archivo Variable", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+
+  --breakpoint-md: 720px;
+  --breakpoint-lg: 1040px;
+  --breakpoint-xl: 1440px;
+
+  --animate-pulse-dot: pulse-dot 2.2s ease-in-out infinite;
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+}
+
+/* ============================================================
+   Theme surfaces
+   Light is the default; dark is applied via [data-theme="dark"]
+   on <html>. Utilities compile to var(--color-*), which defer to
+   these runtime values so the whole palette flips in one place.
+   ============================================================ */
+:root {
+  --paper: #f4f1ea;
+  --ink: #191711;
+  --muted: #57513f;
+  --faint: #7a746a;
+  --line: #ded8ca;
+  --line-deep: #ccc5b4;
+  --ember: #a63c14;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --paper: #15130f;
+  --ink: #ece6d8;
+  --muted: #b4ac9c;
+  --faint: #857e6f;
+  --line: #2b2720;
+  --line-deep: #3c372d;
+  --ember: #e07a44;
+  color-scheme: dark;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: -0.006em;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* Keep focus outlines out of the way on the backdrop overlay. */
+[data-focusguard]:focus-visible {
+  outline: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ============================================================
+   Editorial primitives
+   ============================================================ */
+
+/* Small uppercase captions used for all indexing metadata. */
+.u-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-faint);
+}
+
+/* Display serif voice used for editorial statements. */
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 72;
+}
+
+/* Tuned display for large editorial statements (higher optical size). */
+.font-display-xl {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 120;
+}
+
+@media (max-width: 720px) {
+  .font-display,
+  .font-display-xl {
+    font-variation-settings: "opsz" 60;
+  }
+}
+
+/* Figuras for index numbers. */
+.u-figs {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "ss01";
+}
+
+/* The editorial kicker: mixed-case grotesk, wide-tracked, with a
+   short ember underline that acts as the page accent. */
+.kicker {
+  display: inline-block;
+  position: relative;
+  padding-bottom: 0.9rem;
+}
+.kicker::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2.25rem;
+  height: 2px;
+  background: var(--color-ember);
+  transform-origin: left;
+}
+
+/* Semantic small caps for foreign words like Ìwòran. */
+.smallcaps {
+  font-variant-caps: small-caps;
+}
+
+/* Fade-in state used by the reveal system before GSAP re-enables it. */
+.gsap-ready [data-reveal] {
+  opacity: 1;
+}
+
+/* ============================================================
+   Header
+   Acrylic surface: always translucent with a backdrop blur so
+   scrolling content glows through; firms up slightly on scroll.
+   Surface color follows the active theme.
+   ============================================================ */
+.site-header {
+  background: color-mix(in srgb, var(--color-paper) 72%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-line) 55%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  transition: background-color 0.45s ease, border-color 0.45s ease;
+}
+.site-header.is-scrolled {
+  background: color-mix(in srgb, var(--color-paper) 86%, transparent);
+  border-bottom-color: var(--color-line);
+}
+
+/* ============================================================
+   Mobile menu
+   Slide in from the top edge like a folio cover.
+   ============================================================ */
+.mm-content[data-state="open"] {
+  animation: mm-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.mm-content[data-state="closed"] {
+  animation: mm-out 0.32s cubic-bezier(0.4, 0, 1, 1) both;
+}
+@keyframes mm-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes mm-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-content[data-state="open"],
+  .mm-content[data-state="closed"] {
+    animation: none;
+  }
+  .animate-pulse-dot {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Hero scroll cue
+   Gentle one-way drift that invites scrolling. Disabled when the
+   user prefers reduced motion.
+   ============================================================ */
+.scroll-cue {
+  animation: cue-fall 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes cue-fall {
+  0% {
+    transform: translateY(-120%);
+  }
+  100% {
+    transform: translateY(320%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue {
+    animation: none;
+  }
+}
